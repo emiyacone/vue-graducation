@@ -58,9 +58,9 @@ export default {
         console.log(valid)
         if (!valid) return 0
         const { data: result } = await this.$http.post('/login.do', qs.stringify(this.loginForm))
-        if (result.status === 0) return console.log('登陆成功')
-        console.log(result.status)
-        console.log('登陆失败')
+        if (result.status !== 0) return this.$message.error('登陆失败')
+        this.$message.success('登陆成功')
+        this.$router.push('/home')
       })
     }
   }
