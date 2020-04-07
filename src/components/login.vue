@@ -57,7 +57,7 @@ export default {
       this.$refs.loginFormRef.validate(async valid => {
         console.log(valid)
         if (!valid) return 0
-        const { data: result } = await this.$http.post('/login.do', qs.stringify(this.loginForm))
+        const { data: result } = await this.$http.post('user/login.do', qs.stringify(this.loginForm))
         if (result.status !== 0) return this.$message.error('登陆失败')
         this.$message.success('登陆成功')
         this.$router.push('/home')

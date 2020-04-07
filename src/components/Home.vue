@@ -29,7 +29,7 @@
           </el-menu-item>
         </el-menu>
       </el-aside>
-      <el-main>
+      <el-main class="home-main">
         <router-view></router-view>
       </el-main>
     </el-container>
@@ -108,5 +108,8 @@ export default {
     color: #fff;
     letter-spacing: 0.2em;
     cursor: pointer;
+  }
+  .home-main{
+    background-color:'#EAEDF2'
   }
 </style>

@@ -22,9 +22,9 @@
       <!--列表-->
       <el-table
         :data="orderlist"
-        style="width: 100%">
+        style="width: 100%;font-size:10px">
           <el-table-column
-          :index="'/'+item.id"
+          :index="item.id"
           v-for="item in tablelabels"
           :key="item.id"
           :prop="item.prop"
@@ -36,11 +36,22 @@
             label="上传时间">
           </el-table-column>
     </el-table>
+    <!--分页-->
+     <el-pagination
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="queryInfo.pageNum"
+      :page-sizes="[1, 2, 5, 10]"
+      :page-size="queryInfo.pageSize"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="total">
+    </el-pagination>
    </el-card>
   </div>
 </template>
 
 <script>
+import qs from 'qs'
 export default {
   data () {
     return {
@@ -50,89 +61,105 @@ export default {
       select: '',
       // 获取用户参数对象
       queryInfo: {
+        // 当前页数
         pageNum: 1,
-        pageSize: 5
+        // 一页显示多少
+        pageSize: 2
       },
       orderlist: [],
       tablelabels: [
         {
-          id: '0',
+          id: 1,
           prop: 'orderno',
           label: '工单号',
-          width: '80'
+          width: '120'
         },
         {
-          id: '1',
+          id: 2,
           prop: 'factoryname',
           label: '工厂名',
-          width: '80'
+          width: '120'
         },
         {
-          id: '2',
+          id: 3,
           prop: 'batchno',
           label: '批次号',
           width: '80'
         },
         {
-          id: '3',
+          id: 4,
           prop: 'prono',
           label: '产品编号',
-          width: '80'
+          width: '120'
         },
         {
-          id: '4',
+          id: 5,
           prop: 'proname',
           label: '产品名称',
-          width: '80'
+          width: '180'
         },
         {
-          id: '5',
+          id: 6,
           prop: 'orderno',
           label: '工单号',
           width: '80'
         },
         {
-          id: '6',
+          id: 7,
           prop: 'plancount',
           label: '计划产量',
           width: '80'
         },
         {
-          id: '7',
+          id: 8,
           prop: 'realcount',
           label: '实际产量',
           width: '80'
         },
+        // {
+        //   id: 9,
+        //   prop: 'startdate',
+        //   label: '开始时间',
+        //   width: '80'
+        // },
+        // {
+        //   id: 10,
+        //   prop: 'finishdate',
+        //   label: '结束时间',
+        //   width: '80'
+        // },
         {
-          id: '8',
-          prop: 'startdate',
-          label: '开始时间',
-          width: '80'
-        },
-        {
-          id: '8',
-          prop: 'finishdate',
-          label: '结束时间',
-          width: '80'
-        },
-        {
-          id: '9',
+          id: 11,
           prop: 'isfinish',
           label: '是否完成',
-          width: '80'
+          width: '50'
         }
-      ]
+      ],
+      total: 0
     }
   },
   created () {
     this.getUserlist()
   },
   methods: {
-    getUserlist () {
-      const { data: result } = this.$http.post('users', { params: this.queryInfo })
+    async getUserlist () {
+      const { data: result } = await this.$http.post('order/list.do', qs.stringify(this.queryInfo))
       if (result.status !== 0) return this.$message.error('获取数据失败')
       this.$message.success('获取数据成功')
       this.orderlist = result.data.list
+      this.total = result.data.list.length
+    },
+    // 监听pagesize变化
+    handleSizeChange (newSize) {
+      console.log(newSize)
+      this.queryInfo.pageSize = newSize
+      this.getUserlist()
+    },
+    // 监听当前页数该百年
+    handleCurrentChange (newPage) {
+      console.log(newPage)
+      this.queryInfo.pageNum = newPage
+      this.getUserlist()
     }
   }
 }

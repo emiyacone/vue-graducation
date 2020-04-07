@@ -12,14 +12,14 @@ module.exports = {
     open: false,
 
     proxy: {
-      '/dqmalluser': {
+      '/graduation': {
         // 代理路径 例如 https://baidu.com
-        target: 'http://119.23.191.140:8080/dqmall/user',
+        target: 'http://119.23.191.140:8080/',
         // 将主机标头的原点更改为目标URL
         changeOrigin: true,
         ws: true,
         pathRewrite: {
-          '^/dqmalluser': ''
+          '^/graduation': ''
         }
       }
     }
