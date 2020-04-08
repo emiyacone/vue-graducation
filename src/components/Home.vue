@@ -5,7 +5,7 @@
       <div>
         <span>数据查询系统</span>
       </div>
-      <el-button type="info">退出</el-button>
+      <el-button type="info" @click="logout">退出</el-button>
     </el-header>
     <!--页面主体区域-->
     <el-container>
@@ -80,6 +80,9 @@ export default {
     saveNavState (activePath) {
       window.sessionStorage.setItem('activePath', activePath)
       this.activePath = activePath
+    },
+    logout () {
+      this.$router.push('/')
     }
   }
 }

@@ -35,6 +35,15 @@
             prop="uploadtime"
             label="上传时间">
           </el-table-column>
+           <el-table-column
+      align="right">
+      <template slot-scope="scope">
+        <el-button
+          size="mini"
+          type="primary"
+          @click="handlemore(scope.$index, scope.row)">板号</el-button>
+      </template>
+    </el-table-column>
     </el-table>
     <!--分页-->
      <el-pagination
@@ -47,6 +56,26 @@
       :total="total">
     </el-pagination>
    </el-card>
+    <el-dialog
+    title="通过批次号查看产品详情"
+    :visible.sync="dialogVisible"
+    width="30%">
+    <el-button type="primary" @click="getmessage"></el-button>
+    <span slot="footer" class="dialog-footer">
+      <el-button @click="dialogVisible = false">取 消</el-button>
+      <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+    </span>
+  </el-dialog>
+  <el-dialog
+    title="产品详情"
+    :visible.sync="prodetailvisible"
+    width="30%">
+    <span>这是另一段信息</span>
+    <span slot="footer" class="dialog-footer">
+      <el-button @click="prodetailvisible = false">取 消</el-button>
+      <el-button type="primary" @click="prodetailvisible = false">确 定</el-button>
+    </span>
+  </el-dialog>
   </div>
 </template>
 
@@ -135,7 +164,9 @@ export default {
           width: '50'
         }
       ],
-      total: 0
+      total: 0,
+      dialogVisible: false,
+      prodetailvisible: false
     }
   },
   created () {
@@ -144,10 +175,11 @@ export default {
   methods: {
     async getUserlist () {
       const { data: result } = await this.$http.post('order/list.do', qs.stringify(this.queryInfo))
-      if (result.status !== 0) return this.$message.error('获取数据失败')
+      if (result.status !== 0) return this.$message.error(result.msg)
       this.$message.success('获取数据成功')
+      console.log(result)
       this.orderlist = result.data.list
-      this.total = result.data.list.length
+      this.total = result.data.total
     },
     // 监听pagesize变化
     handleSizeChange (newSize) {
@@ -160,6 +192,14 @@ export default {
       console.log(newPage)
       this.queryInfo.pageNum = newPage
       this.getUserlist()
+    },
+    handlemore (index, row) {
+      // 查询批次号下所有的板号
+      console.log(row.batchno)
+      this.dialogVisible = true
+    },
+    getmessage () {
+      this.prodetailvisible = true
     }
   }
 }
