@@ -3,7 +3,8 @@
     <!--面包屑区域-->
     <el-breadcrumb separator-class="el-icon-arrow-right">
       <el-breadcrumb-item :to="{ path: '/listorder' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item>发货信息明细</el-breadcrumb-item>
+      <el-breadcrumb-item>生产工单查询</el-breadcrumb-item>
+      <el-breadcrumb-item>板号</el-breadcrumb-item>
    </el-breadcrumb>
    <el-card class="box-card">
      <!--搜索添加区-->
@@ -21,7 +22,7 @@
       </el-row>
       <!--列表-->
       <el-table
-        :data="invoicelist"
+        :data="orderlist"
         style="width: 100%;font-size:10px">
           <el-table-column
           :index="item.id"
@@ -31,10 +32,15 @@
           :label="item.label"
           :width="item.width">
          </el-table-column>
-          <el-table-column
-            prop="pickdate"
-            label="上传时间">
-          </el-table-column>
+           <el-table-column
+      align="right">
+      <template slot-scope="scope">
+        <el-button
+          size="mini"
+          type="primary"
+          @click="handlemore(scope.$index, scope.row)">桶明细</el-button>
+      </template>
+    </el-table-column>
     </el-table>
     <!--分页-->
      <el-pagination
@@ -64,60 +70,27 @@ export default {
         // 当前页数
         pageNum: 1,
         // 一页显示多少
-        pageSize: 2
+        pageSize: 2,
+        BatchNo: ''
       },
-      invoicelist: [],
+      orderlist: [],
       tablelabels: [
         {
           id: 1,
-          prop: 'invoiceno',
-          label: '发单号',
+          prop: 'label',
+          label: '板号',
           width: '120'
-        },
-        {
-          id: 2,
-          prop: 'factoryname',
-          label: '工厂名',
-          width: '120'
-        },
-        {
-          id: 3,
-          prop: 'customername',
-          label: '客户名',
-          width: '80'
-        },
-        {
-          id: 4,
-          prop: 'plancount',
-          label: '计划数',
-          width: '120'
-        },
-        {
-          id: 5,
-          prop: 'realcount',
-          label: '实际数',
-          width: '180'
-        },
-        // {
-        //   id: 9,
-        //   prop: 'startdate',
-        //   label: '开始时间',
-        //   width: '80'
-        // },
-        // {
-        //   id: 10,
-        //   prop: 'finishdate',
-        //   label: '结束时间',
-        //   width: '80'
-        // },
-        {
-          id: 6,
-          prop: 'invoicetype',
-          label: '发货单类型',
-          width: '50'
         }
       ],
-      total: 0
+      total: 0,
+      dialogVisible: false,
+      prodetailvisible: false,
+      treedata: [],
+      defaultProps: {
+        children: 'chirden',
+        label: 'label'
+      },
+      prodetail: {}
     }
   },
   created () {
@@ -125,11 +98,12 @@ export default {
   },
   methods: {
     async getUserlist () {
-      const { data: result } = await this.$http.post('invoice/list.do', qs.stringify(this.queryInfo))
-      if (result.status !== 0) return this.$message.error('获取数据失败')
+      this.queryInfo.BatchNo = this.$route.params.BatchNo
+      const { data: result } = await this.$http.post('prodetail/selectbybatchno.do', qs.stringify(this.queryInfo))
+      if (result.status !== 0) return this.$message.error(result.msg)
       this.$message.success('获取数据成功')
       console.log(result)
-      this.invoicelist = result.data.list
+      this.orderlist = result.data.list
       this.total = result.data.total
     },
     // 监听pagesize变化
@@ -143,6 +117,14 @@ export default {
       console.log(newPage)
       this.queryInfo.pageNum = newPage
       this.getUserlist()
+    },
+    async handlemore (index, row) {
+      // 查询批次号下所有的板号
+      console.log(row)
+      this.$router.push({ name: 'ProDetail', params: { StackNo: row.label } })
+    },
+    getmessage () {
+      this.prodetailvisible = true
     }
   }
 }

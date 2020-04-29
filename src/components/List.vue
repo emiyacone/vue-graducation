@@ -11,11 +11,12 @@
         <el-col :span="15">
             <el-input class="search-input" placeholder="请输入内容" v-model="input3">
               <el-select v-model="select" slot="prepend" placeholder="请选择">
-                <el-option label="餐厅名" value="1"></el-option>
-                <el-option label="订单号" value="2"></el-option>
-                <el-option label="用户电话" value="3"></el-option>
+                 <el-option label="工单号" value="OrderNo"></el-option>
+                <el-option label="批次号" value="BacketNo"></el-option>
+                <el-option label="产品编号" value="ProNo"></el-option>
+                <el-option label="产品名称" value="Proname"></el-option>
               </el-select>
-          <el-button slot="append" icon="el-icon-search"></el-button>
+          <el-button slot="append" icon="el-icon-search" @click="handelsearch"></el-button>
           </el-input>
         </el-col>
       </el-row>
@@ -56,11 +57,11 @@
       :total="total">
     </el-pagination>
    </el-card>
-    <el-dialog
+    <!-- <el-dialog
     title="通过批次号查看产品详情"
     :visible.sync="dialogVisible"
     width="30%">
-    <el-button type="primary" @click="getmessage"></el-button>
+    <el-tree :data="treedata" :props="defaultProps" @node-click="handleNodeClick"></el-tree>
     <span slot="footer" class="dialog-footer">
       <el-button @click="dialogVisible = false">取 消</el-button>
       <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
@@ -70,12 +71,29 @@
     title="产品详情"
     :visible.sync="prodetailvisible"
     width="30%">
-    <span>这是另一段信息</span>
+    <div>
+      <span>{{'批次号：'+prodetail.backetno}}</span>
+    </div>
+    <div>
+    <span>{{'工单号：'+prodetail.orderno}}</span>
+    </div>
+    <div>
+    <span>{{'产品id：'+prodetail.id}}</span>
+    </div>
+    <div>
+    <span>{{'板号：'+prodetail.stackno}}</span>
+    </div>
+    <div>
+    <span>是否发货：{{prodetail.isinvoice===0?'否':'是'}}</span>
+    </div>
+    <div>
+    <span>是否上传：{{prodetail.isupload===0?'否':'是'}}</span>
+    </div>
     <span slot="footer" class="dialog-footer">
       <el-button @click="prodetailvisible = false">取 消</el-button>
       <el-button type="primary" @click="prodetailvisible = false">确 定</el-button>
     </span>
-  </el-dialog>
+  </el-dialog> -->
   </div>
 </template>
 
@@ -84,8 +102,6 @@ import qs from 'qs'
 export default {
   data () {
     return {
-      input1: '',
-      input2: '',
       input3: '',
       select: '',
       // 获取用户参数对象
@@ -93,7 +109,11 @@ export default {
         // 当前页数
         pageNum: 1,
         // 一页显示多少
-        pageSize: 2
+        pageSize: 2,
+        OrderNo: '',
+        BacketNo: '',
+        ProNo: '',
+        Proname: ''
       },
       orderlist: [],
       tablelabels: [
@@ -166,7 +186,13 @@ export default {
       ],
       total: 0,
       dialogVisible: false,
-      prodetailvisible: false
+      prodetailvisible: false,
+      treedata: [],
+      defaultProps: {
+        children: 'chirden',
+        label: 'label'
+      },
+      prodetail: {}
     }
   },
   created () {
@@ -174,7 +200,7 @@ export default {
   },
   methods: {
     async getUserlist () {
-      const { data: result } = await this.$http.post('order/list.do', qs.stringify(this.queryInfo))
+      const { data: result } = await this.$http.post('order/search.do', qs.stringify(this.queryInfo))
       if (result.status !== 0) return this.$message.error(result.msg)
       this.$message.success('获取数据成功')
       console.log(result)
@@ -193,14 +219,39 @@ export default {
       this.queryInfo.pageNum = newPage
       this.getUserlist()
     },
-    handlemore (index, row) {
+    async handlemore (index, row) {
       // 查询批次号下所有的板号
       console.log(row.batchno)
-      this.dialogVisible = true
+      this.$router.push({ name: 'StackNo', params: { BatchNo: row.batchno } })
+      // this.treedata = result.data
+      // this.dialogVisible = true
     },
     getmessage () {
       this.prodetailvisible = true
+    },
+    handelsearch () {
+      this.queryInfo.OrderNo = ''
+      this.queryInfo.BacketNo = ''
+      this.queryInfo.ProNo = ''
+      this.queryInfo.Proname = ''
+      switch (this.select) {
+        case 'OrderNo' : this.queryInfo.OrderNo = this.input3; break
+        case 'BacketNo' : this.queryInfo.BacketNo = this.input3; break
+        case 'ProNo' : this.queryInfo.ProNo = this.input3; break
+        case 'Proname' : this.queryInfo.Proname = this.input3; break
+      }
+      this.getUserlist()
     }
+    // handleNodeClick (data) {
+    //   console.log(data)
+    //   if (data.isleaf) this.getprodetail(data)
+    // },
+    // async getprodetail (data) {
+    //   const { data: result } = await this.$http.post('prodetail/selectbyid.do', qs.stringify({ ID: data.label }))
+    //   this.prodetail = result.data
+    //   console.log(result)
+    //   this.prodetailvisible = true
+    // }
   }
 }
 </script>

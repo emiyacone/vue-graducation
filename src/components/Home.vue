@@ -46,11 +46,11 @@ export default {
           path: 'listorder',
           name: '生产工单查询'
         },
-        {
-          id: '1',
-          path: 'confirmmessage',
-          name: '发货单确认'
-        },
+        // {
+        //   id: '1',
+        //   path: 'confirmmessage',
+        //   name: '发货单确认'
+        // },
         {
           id: '2',
           path: 'listinvoice',
